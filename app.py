@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import tensorflow as tf
@@ -6,14 +7,53 @@ import numpy as np
 from PIL import Image
 import io
 import base64
+import requests
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS to allow React app to connect
 
 # Paths to model files
-BRAIN_CLASSIFICATION_MODEL_PATH = "Brain_Tumor_Classification_Model.h5"
-BRAIN_SEGMENTATION_MODEL_PATH = "brain_tumor_segmentation_model.h5"
-SKIN_MODEL_PATH = "skin_cancer_model.h5"
+MODEL_DIR = "./models"
+BRAIN_CLASSIFICATION_MODEL_NAME = "Brain_Tumor_Classification_Model.h5"
+BRAIN_SEGMENTATION_MODEL_NAME = "brain_tumor_segmentation_model.h5"
+SKIN_MODEL_NAME = "skin_cancer_model.h5"
+
+BRAIN_CLASSIFICATION_MODEL_PATH = os.path.join(MODEL_DIR, BRAIN_CLASSIFICATION_MODEL_NAME)
+BRAIN_SEGMENTATION_MODEL_PATH = os.path.join(MODEL_DIR, BRAIN_SEGMENTATION_MODEL_NAME)
+SKIN_MODEL_PATH = os.path.join(MODEL_DIR, SKIN_MODEL_NAME)
+
+# Google Drive direct download links
+# Replace these with your actual direct download links
+BRAIN_CLASSIFICATION_MODEL_URL = "https://drive.google.com/uc?export=download&id=1HAcF3evhH8A4V_EnCWTVN0Gw9iU0VxnI"
+BRAIN_SEGMENTATION_MODEL_URL = "https://drive.google.com/uc?export=download&id=1mMaidey49WG1Kk4Evq2RFTTqXsKZxe2q"
+SKIN_MODEL_URL = "https://drive.google.com/uc?export=download&id=1NbmXviD0dzBck5Kfiw4Ybt24Kqt1Jjmv"
+
+def download_file(url, filename):
+    """Downloads a file from a given URL."""
+    if not os.path.exists(MODEL_DIR):
+        os.makedirs(MODEL_DIR)
+    filepath = os.path.join(MODEL_DIR, filename)
+    if not os.path.exists(filepath):
+        print(f"Downloading {filename} from {url}...")
+        try:
+            response = requests.get(url, stream=True)
+            response.raise_for_status()  # Raise an exception for HTTP errors
+            with open(filepath, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            print(f"Successfully downloaded {filename}")
+        except requests.exceptions.RequestException as e:
+            print(f"Error downloading {filename}: {e}")
+            return False
+    else:
+        print(f"{filename} already exists. Skipping download.")
+    return True
+
+# Download models if they don't exist
+print("Checking for AI models...")
+download_file(BRAIN_CLASSIFICATION_MODEL_URL, BRAIN_CLASSIFICATION_MODEL_NAME)
+download_file(BRAIN_SEGMENTATION_MODEL_URL, BRAIN_SEGMENTATION_MODEL_NAME)
+download_file(SKIN_MODEL_URL, SKIN_MODEL_NAME)
 
 # Load the models when the application starts
 try:
@@ -183,4 +223,6 @@ def health_check():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
+
+
 

@@ -4,4 +4,6 @@ tensorflow
 Pillow==10.0.0
 numpy
 gunicorn==21.2.0
+requests
+
 
