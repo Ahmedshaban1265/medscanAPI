@@ -78,7 +78,7 @@ def preprocess_brain_classification_image(image_bytes):
     if image.mode != 'RGB':
         image = image.convert('RGB')
 
-    # Resize to 128x128 for brain classification model (corrected size)
+    # Resize to 128x128 for brain classification model
     image = image.resize((128, 128))
     image_array = np.array(image)
     image_array = image_array / 255.0  # Normalize pixel values to 0-1 range
@@ -114,7 +114,7 @@ def preprocess_brain_segmentation_image(image_bytes):
     image_array = np.expand_dims(image_array, axis=0)  # Add batch dimension
     return image_array
 
-# Function to preprocess the image for skin model (128x128) - CORRECTED SIZE
+# Function to preprocess the image for skin model (28x28)
 def preprocess_skin_image(image_bytes):
     image = Image.open(io.BytesIO(image_bytes))
     
@@ -122,8 +122,8 @@ def preprocess_skin_image(image_bytes):
     if image.mode != 'RGB':
         image = image.convert('RGB')
 
-    # Resize to 128x128 for skin model (corrected size)
-    image = image.resize((128, 128))
+    # Resize to 28x28 for skin model
+    image = image.resize((28, 28))
     image_array = np.array(image)
     image_array = image_array / 255.0  # Normalize pixel values to 0-1 range
     
@@ -194,7 +194,7 @@ def scan_image():
 
     elif disease_type == "Skin Cancer" and skin_model:
         try:
-            # Preprocess image for skin model (128x128) - CORRECTED
+            # Preprocess image for skin model (28x28)
             processed_image = preprocess_skin_image(image_bytes)
             
             prediction = skin_model.predict(processed_image)
@@ -244,3 +244,5 @@ def health_check():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
+
+
