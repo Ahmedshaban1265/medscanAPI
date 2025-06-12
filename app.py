@@ -57,8 +57,6 @@ download_file(SKIN_MODEL_URL, SKIN_MODEL_NAME)
 
 # Load the models when the application starts
 try:
-    # Note: The brain classification model actually expects 28x28x3 input, not 128x128x3
-    # This was discovered by examining the model configuration
     brain_classification_model = keras.models.load_model(BRAIN_CLASSIFICATION_MODEL_PATH, compile=False)
     brain_segmentation_model = keras.models.load_model(BRAIN_SEGMENTATION_MODEL_PATH, compile=False)
     skin_model = keras.models.load_model(SKIN_MODEL_PATH, compile=False)
@@ -72,7 +70,7 @@ except Exception as e:
     brain_segmentation_model = None
     skin_model = None
 
-# Function to preprocess the image for brain classification model (28x28)
+# Function to preprocess the image for brain classification model (128x128)
 def preprocess_brain_classification_image(image_bytes):
     image = Image.open(io.BytesIO(image_bytes))
     
@@ -168,11 +166,9 @@ def scan_image():
             encoded_seg_image = base64.b64encode(buffered.getvalue()).decode('utf-8')
             results["segmentation_image_base64"] = encoded_seg_image
             
-            # Step 2: Classification (uses 28x28 input)
+            # Step 2: Classification (uses 128x128 input for the new model)
             processed_image_class = preprocess_brain_classification_image(image_bytes)
             prediction = brain_classification_model.predict(processed_image_class)
-            print(f"Brain classification prediction shape: {prediction.shape}")
-            print(f"Brain classification prediction: {prediction}")
             
             # Brain classification model outputs probabilities for the 4 classes:
             # [Glioma, Meningioma, Pituitary tumor, No tumor]
@@ -184,7 +180,7 @@ def scan_image():
             results["diagnosis"] = predicted_class_name
             results["confidence"] = f"{confidence:.2f}%"
             
-            if predicted_class_name == "No tumor":
+            if predicted_class_name == "No Tumor":
                 results["description"] = "Based on the AI analysis, no brain tumor was detected. Regular check-ups are recommended."
                 results["recommendations"] = ["Routine check-up", "Maintain healthy lifestyle"]
             else:
@@ -248,5 +244,5 @@ def health_check():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
-    
+
 
