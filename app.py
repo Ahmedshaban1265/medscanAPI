@@ -57,9 +57,11 @@ download_file(SKIN_MODEL_URL, SKIN_MODEL_NAME)
 
 # Load the models when the application starts
 try:
-    brain_classification_model = keras.models.load_model(BRAIN_CLASSIFICATION_MODEL_PATH)
-    brain_segmentation_model = keras.models.load_model(BRAIN_SEGMENTATION_MODEL_PATH)
-    skin_model = keras.models.load_model(SKIN_MODEL_PATH)
+    # Note: The brain classification model actually expects 28x28x3 input, not 128x128x3
+    # This was discovered by examining the model configuration
+    brain_classification_model = keras.models.load_model(BRAIN_CLASSIFICATION_MODEL_PATH, compile=False)
+    brain_segmentation_model = keras.models.load_model(BRAIN_SEGMENTATION_MODEL_PATH, compile=False)
+    skin_model = keras.models.load_model(SKIN_MODEL_PATH, compile=False)
     print("AI models loaded successfully!")
     print(f"Brain classification model input shape: {brain_classification_model.input_shape}")
     print(f"Brain segmentation model input shape: {brain_segmentation_model.input_shape}")
@@ -70,15 +72,37 @@ except Exception as e:
     brain_segmentation_model = None
     skin_model = None
 
-# Function to preprocess the image for brain models (128x128)
-def preprocess_brain_image(image_bytes):
+# Function to preprocess the image for brain classification model (28x28)
+def preprocess_brain_classification_image(image_bytes):
     image = Image.open(io.BytesIO(image_bytes))
     
     # Convert to RGB if not already
     if image.mode != 'RGB':
         image = image.convert('RGB')
 
-    # Resize to 128x128 for brain models
+    # Resize to 28x28 for brain classification model (corrected size)
+    image = image.resize((28, 28))
+    image_array = np.array(image)
+    image_array = image_array / 255.0  # Normalize pixel values to 0-1 range
+    
+    # Ensure 3 channels
+    if len(image_array.shape) == 2:
+        image_array = np.stack((image_array,)*3, axis=-1)
+    elif image_array.shape[2] == 4:  # Remove alpha channel if present
+        image_array = image_array[:, :, :3]
+
+    image_array = np.expand_dims(image_array, axis=0)  # Add batch dimension
+    return image_array
+
+# Function to preprocess the image for brain segmentation model (128x128)
+def preprocess_brain_segmentation_image(image_bytes):
+    image = Image.open(io.BytesIO(image_bytes))
+    
+    # Convert to RGB if not already
+    if image.mode != 'RGB':
+        image = image.convert('RGB')
+
+    # Resize to 128x128 for brain segmentation model
     image = image.resize((128, 128))
     image_array = np.array(image)
     image_array = image_array / 255.0  # Normalize pixel values to 0-1 range
@@ -130,11 +154,9 @@ def scan_image():
     
     if disease_type == "Brain Tumor" and brain_classification_model and brain_segmentation_model:
         try:
-            # Preprocess image for brain models (128x128)
-            processed_image = preprocess_brain_image(image_bytes)
-            
-            # Step 1: Segmentation
-            segmentation_output = brain_segmentation_model.predict(processed_image)
+            # Step 1: Segmentation (uses 128x128 input)
+            processed_image_seg = preprocess_brain_segmentation_image(image_bytes)
+            segmentation_output = brain_segmentation_model.predict(processed_image_seg)
             
             # Process segmentation output to an image and encode as Base64
             # Assuming segmentation_output is a mask with values between 0 and 1
@@ -146,8 +168,9 @@ def scan_image():
             encoded_seg_image = base64.b64encode(buffered.getvalue()).decode('utf-8')
             results["segmentation_image_base64"] = encoded_seg_image
             
-            # Step 2: Classification
-            prediction = brain_classification_model.predict(processed_image)
+            # Step 2: Classification (uses 28x28 input)
+            processed_image_class = preprocess_brain_classification_image(image_bytes)
+            prediction = brain_classification_model.predict(processed_image_class)
             
             # Brain classification model outputs probabilities for the 4 classes:
             # [Glioma, Meningioma, Pituitary tumor, No tumor]
@@ -223,6 +246,3 @@ def health_check():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
-
-
-
