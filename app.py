@@ -174,7 +174,7 @@ def scan_image():
             
             # Brain classification model outputs probabilities for the 4 classes:
             # [Glioma, Meningioma, Pituitary tumor, No tumor]
-            class_names = ["Glioma", "Meningioma", "No tumor" ,"Pituitary tumor"]
+            class_names = ["Glioma", "Meningioma","Pituitary tumor" ,"No tumor" ]
             predicted_class_index = np.argmax(prediction)
             predicted_class_name = class_names[predicted_class_index]
             confidence = prediction[0][predicted_class_index] * 100
