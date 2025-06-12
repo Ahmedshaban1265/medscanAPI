@@ -24,9 +24,9 @@ SKIN_MODEL_PATH = os.path.join(MODEL_DIR, SKIN_MODEL_NAME)
 
 # Google Drive direct download links
 # Replace these with your actual direct download links
-BRAIN_CLASSIFICATION_MODEL_URL = "https://drive.google.com/file/d/1HAcF3evhH8A4V_EnCWTVN0Gw9iU0VxnI/view?usp=sharing"
-BRAIN_SEGMENTATION_MODEL_URL = "https://drive.google.com/file/d/1mMaidey49WG1Kk4Evq2RFTTqXsKZxe2q/view?usp=sharing"
-SKIN_MODEL_URL = "https://drive.google.com/file/d/1HAcF3evhH8A4V_EnCWTVN0Gw9iU0VxnI/view?usp=sharing"
+BRAIN_CLASSIFICATION_MODEL_URL = "https://drive.google.com/uc?export=download&id=1HAcF3evhH8A4V_EnCWTVN0Gw9iU0VxnI"
+BRAIN_SEGMENTATION_MODEL_URL = "https://drive.google.com/uc?export=download&id=1mMaidey49WG1Kk4Evq2RFTTqXsKZxe2q"
+SKIN_MODEL_URL = "https://drive.google.com/uc?export=download&id=1NbmXviD0dzBck5Kfiw4Ybt24Kqt1Jjmv"
 
 def download_file(url, filename):
     """Downloads a file from a given URL."""
@@ -123,7 +123,7 @@ def preprocess_skin_image(image_bytes):
         image = image.convert('RGB')
 
     # Resize to 128x128 for skin model (corrected size)
-    image = image.resize((28, 28))
+    image = image.resize((128, 128))
     image_array = np.array(image)
     image_array = image_array / 255.0  # Normalize pixel values to 0-1 range
     
@@ -244,5 +244,3 @@ def health_check():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
-
-
