@@ -81,7 +81,7 @@ def preprocess_brain_classification_image(image_bytes):
         image = image.convert('RGB')
 
     # Resize to 28x28 for brain classification model (corrected size)
-    image = image.resize((128, 128))
+    image = image.resize((28, 28))
     image_array = np.array(image)
     image_array = image_array / 255.0  # Normalize pixel values to 0-1 range
     
