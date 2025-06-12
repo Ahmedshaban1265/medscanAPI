@@ -24,9 +24,9 @@ SKIN_MODEL_PATH = os.path.join(MODEL_DIR, SKIN_MODEL_NAME)
 
 # Google Drive direct download links
 # Replace these with your actual direct download links
-BRAIN_CLASSIFICATION_MODEL_URL = "https://drive.google.com/file/d/1sW4gTalv-eAa6kBWbZy0CeWBiUcLEzXX/view?usp=drive_link"
-BRAIN_SEGMENTATION_MODEL_URL = "https://drive.google.com/file/d/10oxHa6STjPMZvyuPyAvZjk7VzrIcYSoA/view?usp=drive_link"
-SKIN_MODEL_URL = "https://drive.google.com/file/d/18Oz_e9EQ3W6gXX2H2c8-2DuaV9NS8kGC/view?usp=drive_link"
+BRAIN_CLASSIFICATION_MODEL_URL = "https://drive.google.com/file/d/1HAcF3evhH8A4V_EnCWTVN0Gw9iU0VxnI/view?usp=sharing"
+BRAIN_SEGMENTATION_MODEL_URL = "https://drive.google.com/file/d/1mMaidey49WG1Kk4Evq2RFTTqXsKZxe2q/view?usp=sharing"
+SKIN_MODEL_URL = "https://drive.google.com/file/d/1HAcF3evhH8A4V_EnCWTVN0Gw9iU0VxnI/view?usp=sharing"
 
 def download_file(url, filename):
     """Downloads a file from a given URL."""
